@@ -1,0 +1,21 @@
+.start {
+    -fx-background-image: url(../images/java-tic-tac-toe-tutorial-beginner_2.png);
+    -fx-background-repeat: stretch;
+    -fx-background-position: center;
+}
+.pvp{
+    -fx-background-color: #CBE11E;
+    -fx-text-fill: #006464;
+}
+.pvc{
+    -fx-background-color: #CBE11E;
+    -fx-text-fill: #006464;
+}
+.pvp:hover{
+    -fx-background-color: #E1961E;
+    -fx-text-fill: #1E69E1;
+}
+.pvc:hover{
+    -fx-background-color: #E1961E;
+    -fx-text-fill: #1E69E1;
+}

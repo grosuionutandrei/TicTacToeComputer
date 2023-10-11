@@ -1,0 +1,38 @@
+.computer_start{
+    -fx-background-color: #A6C1FF;
+}
+.border_button{
+    -fx-border-style: solid outside;
+    -fx-border-width: 3;
+    -fx-border-color: #FFE4A6;
+    -fx-background-color: #CBE11E;
+    -fx-text-fill:#e11ecb ;
+    -fx-border-radius: 10%;
+}
+.player_decision{
+    -fx-pref-width: 50;
+    -fx-pref-height: 50;
+}
+.computer_decision{
+    -fx-pref-width: 100;
+    -fx-pref-height: 50;
+    -fx-padding: 5px;
+    -fx-border-insets: 5px;
+    -fx-background-insets: 5px;
+
+}
+.border_button:hover{
+    -fx-border-style: solid outside;
+    -fx-border-width: 3;
+    -fx-border-color:  #1E69E1;
+    -fx-border-radius: 10%;
+}
+.border_button:armed{
+     -fx-background-color: #D5E74B;
+    -fx-border-color: #E1341E;
+}
+.clicked{
+    -fx-text-fill: #CBE11E;
+    -fx-background-color: #341EE1;
+    -fx-border-color: #E1341E;
+}
