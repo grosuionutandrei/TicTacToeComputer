@@ -7,15 +7,11 @@ public class ComputerPlayerBoard implements ComputerGameBoard{
 
     private int[][] board = {{-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}};
 
-    /**
-     * Returns 0 for player 0, 1 for player 1.
-     *
-     * @return int Id of the next player.
-     */
+
     public int getNextPlayer() {
         if(currentPlayer==0){
             currentPlayer=1;
-            return 1 ;
+            return 1;
         }else {
             currentPlayer=0;
             return 0;
@@ -52,7 +48,11 @@ public class ComputerPlayerBoard implements ComputerGameBoard{
         if (checkColumns(board)){
             return true;
         }
-        return turn==9;
+        if(turn==9){
+            winner=-1;
+            return true;
+        }
+        return false;
     }
 
 
@@ -79,6 +79,15 @@ public class ComputerPlayerBoard implements ComputerGameBoard{
     @Override
     public int getCurrentPlayer() {
         return currentPlayer;
+    }
+    public int changePlayer(){
+        if(currentPlayer==0){
+            currentPlayer=1;
+            return 0;
+        }else {
+            currentPlayer=0;
+            return 1;
+        }
     }
 
     private boolean checkWinnerRowsAndDiagonals(int[][] data) {

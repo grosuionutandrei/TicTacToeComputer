@@ -125,8 +125,9 @@ public class GameBoardTest
         instance.play(0, 1); //Player 0
         instance.play(2, 0); //Player 1
         instance.play(0, 2); //Player 0
-
+        boolean isGameOver = instance.isGameOver();
         int result = instance.getWinner();
+        assertTrue(isGameOver);
         assertEquals(expResult, result);
     }
 

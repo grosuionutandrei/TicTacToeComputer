@@ -45,4 +45,5 @@ public interface ComputerGameBoard {
 
 public void setPlayer(String player);
 public int getCurrentPlayer();
+public int changePlayer();
 }

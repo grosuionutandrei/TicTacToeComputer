@@ -42,6 +42,7 @@ public class GameBoard implements IGameModel {
         return true;
     }
 
+
     public boolean isGameOver() {
         if (checkWinnerRowsAndDiagonals(board)) {
             return true;
@@ -49,8 +50,13 @@ public class GameBoard implements IGameModel {
         if (checkColumns(board)){
             return true;
         }
-        return turn == 9;
+        if(turn==9){
+            winner=-1;
+            return true;
+        }
+        return false;
     }
+
 
 
     public int getWinner() {
