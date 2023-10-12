@@ -95,6 +95,7 @@ private VBox computerStartWindow;
                 controller.handleComputerStart();
             }else{
                 controller.setLblPlayer(playerSymbol);
+                controller.setCompFirstMove();
             }
             Scene scene =new Scene(root);
             Stage stage = new Stage();

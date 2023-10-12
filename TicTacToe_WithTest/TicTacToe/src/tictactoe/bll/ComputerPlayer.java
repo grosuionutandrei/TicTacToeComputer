@@ -1,14 +1,39 @@
 package tictactoe.bll;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class ComputerPlayer {
     private static final int EMPTY_VALUE = -1;
-    private int currentPlayer;
-    private int winner = -1;
-    private int turn;
+    private enum Edges{
+        EDGEUP(new int[]{0,1}),
+        EDGEDOWN(new int[]{2,1}),
+        EDGERIGHT(new int[]{1,2}),
+        EDGELEFT(new int[]{1,0});
+
+        private final int[] coords;
+        Edges(int[] coords) {
+            this.coords = coords;
+        }
+        public int[] getCoords() {
+            return coords;
+        }
+    }
+
+    private enum Corners {
+        CORNERUPLEFT(new int[]{0,0}),
+        CORNERUPRIGHT(new int[]{0,2}),
+        CORNERDOWNRIGHT(new int[]{2,2}),
+        CORNERDOWNLEFT(new int[]{2,0});
+        private final int[] coords;
+        Corners(int[] coords) {
+            this.coords = coords;
+        }
+        public int[] getCoords() {
+            return coords;
+        }
+    }
+
+    private boolean isFirstMove=false;
 
     private int[][] board = {{-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}};
 
@@ -19,20 +44,27 @@ public class ComputerPlayer {
     public int[] computerMove() {
         int[] randomPosition= randomPosition = getRandomEmptyPosition(board);
         if(randomPosition!=null){
-            board[randomPosition[0]][randomPosition[1]]= 1;
+            board[randomPosition[0]][randomPosition[1]]= 0;
             return randomPosition;
         }
+        printBoard(board);
         return null;
     }
-
-
-//    int[] position = getRandomEmptyPosition(array);
-//        if (position != null) {
-//        System.out.println("Random empty position: [" + position[0] + ", " + position[1] + "]");
-//    } else {
-//        System.out.println("No empty position found.");
-//    }
-//}
+    public int[] computerMoveSmart(){
+        int[] pos;
+        if(isFirstMove){
+            System.out.println("My first move");
+            pos=firstMoveWhenXStarts(board);
+            board[pos[0]][pos[1]]=0;
+            isFirstMove=false;
+            return pos;
+        }
+        pos=smartMove(board);
+        board[pos[0]][pos[1]]=0;
+        System.out.println("Computer representation");
+        printBoard(board);
+        return pos;
+    }
 
     private int[] getRandomEmptyPosition(int[][] array) {
         List<int[]> emptyPositions = new ArrayList<>();
@@ -59,4 +91,98 @@ public class ComputerPlayer {
             System.out.println();
         }
     }
+
+
+    public int[] firstMoveWhenXStarts(int[][] board) {
+        int[] centerMove = {1, 1};
+        if (board[1][1] == EMPTY_VALUE) {
+            return centerMove;
+        }
+        return takeTheCorner();
+    }
+
+private int[] takeTheCorner(){
+        Random random = new Random();
+        int randomMove = random.nextInt(Corners.values().length);
+        Corners[] corners = Corners.values();
+        return corners[randomMove].coords;
+}
+
+private int[] smartMove(int[][]board){
+// To implement for computer to be offensive, now he is onlly defensive
+    int[] move= new int[2];
+
+    for (int i = 0; i < board.length; i++) {
+        int[] currentRow = board[i];
+        if (areTwoInRow(currentRow,1)) {
+          int emptyPos= emptyPosition(currentRow);
+          if(emptyPos>=0){
+              move[0]=i;
+              move[1]=emptyPos;
+              System.out.println(move[0]+ " " +move[1]+" computer Move");
+              return move;
+          }
+        }
+
+    }
+
+     int[] colMove = checkColumns(board);
+    if(colMove[0]>=0){
+          return colMove;
+    }
+
+   return move;
+}
+
+    public int[] checkColumns(int[][] board) {
+        int[] moves= {-1,-1};
+        int rows = board.length;
+        int columns = board[0].length;
+        int[] columnValues = new int[rows];
+        for (int i = 0; i < columns; i++) {
+            for (int j = 0; j < rows; j++) {
+                columnValues[j] = board[j][i];
+            }
+            if(areTwoInRow(columnValues,1)){
+                int emptyPosition = emptyPosition(columnValues);
+                if(emptyPosition>=0){
+                    moves[0]=emptyPosition;
+                    moves[1]=i;
+                    return moves;
+                }
+            }
+
+        }
+  return moves;
+    }
+
+    private boolean areTwoInRow(int[] currentRow, int val) {
+        int equal = 0;
+        for (int i = 0; i < currentRow.length; i++) {
+            if (currentRow[i] == val) {
+                equal++;
+                if (equal == 2) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private int emptyPosition(int[]currentRow){
+        for(int i =0;i<currentRow.length;i++){
+            if(currentRow[i]==EMPTY_VALUE){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+
+    public void setFirstMove(boolean value){
+        this.isFirstMove=value;
+        System.out.println("First move initialized ");
+}
+
+
 }

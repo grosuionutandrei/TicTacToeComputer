@@ -16,8 +16,8 @@ import java.util.Random;
 import java.util.ResourceBundle;
 
 public class ComputerController implements Initializable {
-    private String playerSymbol ="";
-    private String computerLevel ="";
+    private String playerSymbol = "";
+    private String computerLevel = "";
     @FXML
     private Button btnNewGame;
     @FXML
@@ -26,7 +26,6 @@ public class ComputerController implements Initializable {
     @FXML
     private ComputerGameBoard compGame;
     private ComputerPlayer compPlayer;
-
 
 
     @FXML
@@ -41,15 +40,15 @@ public class ComputerController implements Initializable {
             Integer col = GridPane.getColumnIndex((Node) event.getSource());
             int r = (row == null) ? 0 : row;
             int c = (col == null) ? 0 : col;
-            int player=-1;
-            if(playerSymbol.equalsIgnoreCase("x")){
-               player=compGame.changePlayer();
-            }else{
-                player=compGame.getNextPlayer();
+            int player = -1;
+            if (playerSymbol.equalsIgnoreCase("x")) {
+                player = compGame.changePlayer();
+            } else {
+                player = compGame.getNextPlayer();
             }
             //int player = compGame.getNextPlayer();
             if (compGame.play(c, r)) {
-                compPlayer.addPlayerMoves(r,c);
+                compPlayer.addPlayerMoves(r, c);
                 if (compGame.isGameOver()) {
                     System.out.println(compGame.getWinner() + "from player");
                     Button btn = (Button) event.getSource();
@@ -63,45 +62,49 @@ public class ComputerController implements Initializable {
             } else {
                 return;
             }
-            int[] compCoords = compPlayer.computerMove();
+            int[] compCoords = new int[2];
+            if(computerLevel.equalsIgnoreCase("easy")){
+                compCoords=compPlayer.computerMove();
+            }else if(computerLevel.equalsIgnoreCase("hard")){
+                compCoords=compPlayer.computerMoveSmart();
+            }
             int comp = compGame.getNextPlayer();
-
-
-            if(compCoords!=null){
+            if (compCoords != null) {
                 if (compGame.play(compCoords[1], compCoords[0])) {
                     if (compGame.isGameOver()) {
                         System.out.println(compGame.getWinner() + " from computer");
-                        System.out.println(compCoords[0]+" "+compCoords[1] +"coordscomp");
-                        displayMove(compCoords[0],compCoords[1],decideComputerSymbol(playerSymbol));
+                        System.out.println(compCoords[0] + " " + compCoords[1] + "coordscomp");
+                        displayMove(compCoords[0], compCoords[1], decideComputerSymbol(playerSymbol));
                         displayWinner(String.valueOf(compGame.getWinner()));
                     } else {
-                        displayMove(compCoords[0],compCoords[1],decideComputerSymbol(playerSymbol));
+                        displayMove(compCoords[0], compCoords[1], decideComputerSymbol(playerSymbol));
                         setPlayer();
                     }
                 } else {
                 }
             }
-
-
-
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-
-
     }
 
     public void handleComputerStart() {
         compGame.setPlayer("X");
         setPlayer();
+        if (computerLevel.equalsIgnoreCase("hard")) {
+            compPlayer.addPlayerMoves(1, 1);
+            compGame.play(1, 1);
+            displayMove(1, 1, "X");
+            return;
+        }
         int rowComputer = getRandomNumber(3);
         int columnComputer = getRandomNumber(3);
-        compPlayer.addPlayerMoves(rowComputer,columnComputer);
-        compGame.play(columnComputer,rowComputer);
-        displayMove(rowComputer, columnComputer,"X");
+        compPlayer.addPlayerMoves(rowComputer, columnComputer);
+        compGame.play(columnComputer, rowComputer);
+        displayMove(rowComputer, columnComputer, "X");
     }
 
-    private void displayMove(int rowComputer, int columnComputer,String value) {
+    private void displayMove(int rowComputer, int columnComputer, String value) {
         List<Node> nodes = gridPane.getChildren();
         for (Node node : nodes) {
             int row = gridPane.getRowIndex(node) != null ? gridPane.getRowIndex(node) : 0;
@@ -119,9 +122,9 @@ public class ComputerController implements Initializable {
 
         clearBoard();
         lblPlayer.setText("");
-        if(playerSymbol.equalsIgnoreCase("O")){
-           handleComputerStart();
-        }else{
+        if (playerSymbol.equalsIgnoreCase("O")) {
+            handleComputerStart();
+        } else {
             compGame.setPlayer(playerSymbol);
         }
         setPlayer();
@@ -129,55 +132,25 @@ public class ComputerController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        compGame= new ComputerPlayerBoard();
-        compPlayer=new ComputerPlayer();
+        compGame = new ComputerPlayerBoard();
+        compPlayer = new ComputerPlayer();
     }
 
 
     private void setPlayer() {
-        String player="";
-        if(playerSymbol.equalsIgnoreCase("X")){
-            player=compGame.getCurrentPlayer()==0?"X":"O";
-        }else{
-            player=(compGame.getCurrentPlayer()==0?"O":"X");
+        String player = "";
+        if (playerSymbol.equalsIgnoreCase("X")) {
+            player = compGame.getCurrentPlayer() == 0 ? "X" : "O";
+        } else {
+            player = (compGame.getCurrentPlayer() == 0 ? "O" : "X");
         }
 
-        lblPlayer.setText(TXT_PLAYER + "=>"+ "\"" + player + "\"");
+        lblPlayer.setText(TXT_PLAYER + "=>" + "\"" + player + "\"");
     }
 
     private void displayWinner(String winner) {
-//        String message = "";
-//        if (playerSymbol.equalsIgnoreCase("o")) {
-//            switch (winner) {
-//                case "-1":
-//                    message = "It's a draw :-(";
-//                    break;
-//                case "0":
-//                    message ="Computer" + " wins!!!";
-//                    break;
-//                default:
-//                    message = "Player " + "<<" + playerSymbol + ">>" + " wins!!!";
-//            }
-//            lblPlayer.setText(message);
-//        } else {
-//
-//            switch (winner) {
-//                case "-1":
-//                    message = "It's a draw :-(";
-//                    break;
-//                case "0":
-//                    message = "Player " + winner + " wins!!!";
-//                    break;
-//                default:
-//                    message ="Computer" + " wins!!!";
-//                    break;
-//            }
-//            lblPlayer.setText(message);
-//        }
-
         String message = "";
-        switch (winner)
-        {
+        switch (winner) {
             case "-1":
                 message = "It's a draw :-(";
                 break;
@@ -195,9 +168,11 @@ public class ComputerController implements Initializable {
             btn.setText("");
         }
     }
-    private  String changeSymbol( int player) {
+
+    private String changeSymbol(int player) {
         return player == 0 ? "X" : "O";
     }
+
     public String getPlayerSymbol() {
         return playerSymbol;
     }
@@ -205,7 +180,6 @@ public class ComputerController implements Initializable {
     public void setPlayerSymbol(String playerSymbol) {
         this.playerSymbol = playerSymbol;
     }
-
 
 
     public String getComputerLevel() {
@@ -232,5 +206,9 @@ public class ComputerController implements Initializable {
 
     private String decideComputerSymbol(String symbol) {
         return playerSymbol.equalsIgnoreCase("X") ? "O" : "X";
+    }
+
+    public void setCompFirstMove(){
+        this.compPlayer.setFirstMove(true);
     }
 }
