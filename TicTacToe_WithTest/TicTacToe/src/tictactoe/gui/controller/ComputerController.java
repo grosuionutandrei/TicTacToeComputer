@@ -92,7 +92,7 @@ public class ComputerController implements Initializable {
         compGame.setPlayer("X");
         setPlayer();
         if (computerLevel.equalsIgnoreCase("hard")) {
-            compPlayer.addPlayerMoves(1, 1);
+            compPlayer.addComputerMoveWhenFirst(1, 1);
             compGame.play(1, 1);
             displayMove(1, 1, "X");
             return;
