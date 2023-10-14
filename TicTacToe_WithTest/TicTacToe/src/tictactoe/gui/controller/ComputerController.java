@@ -135,8 +135,6 @@ public class ComputerController implements Initializable {
         compGame = new ComputerPlayerBoard();
         compPlayer = new ComputerPlayer();
     }
-
-
     private void setPlayer() {
         String player = "";
         if (playerSymbol.equalsIgnoreCase("X")) {

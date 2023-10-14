@@ -20,23 +20,6 @@ public class ComputerPlayer {
     }
 
 
-    private enum Edges {
-        EDGEUP(new int[]{0, 1}),
-        EDGEDOWN(new int[]{2, 1}),
-        EDGERIGHT(new int[]{1, 2}),
-        EDGELEFT(new int[]{1, 0});
-
-        private final int[] coords;
-
-        Edges(int[] coords) {
-            this.coords = coords;
-        }
-
-        public int[] getCoords() {
-            return coords;
-        }
-    }
-
     private enum Corners {
         CORNERUPLEFT(new int[]{0, 0}),
         CORNERUPRIGHT(new int[]{0, 2}),
@@ -55,37 +38,38 @@ public class ComputerPlayer {
 
     private boolean isFirstMove = false;
 
-    private int[][] board = {{-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}};
+    private int[][] board = {{EMPTY_VALUE, EMPTY_VALUE, EMPTY_VALUE},
+            {EMPTY_VALUE, EMPTY_VALUE, EMPTY_VALUE},
+            {EMPTY_VALUE, EMPTY_VALUE, EMPTY_VALUE}};
 
     public void addPlayerMoves(int row, int col) {
-        board[row][col] = 1;
+        board[row][col] = Players.PLAYER.getSymbol();
     }
 
     public void addComputerMoveWhenFirst(int row, int col) {
-        board[row][col] = 0;
+        board[row][col] = Players.COMPUTER.getSymbol();
     }
 
     public int[] computerMove() {
-        int[] randomPosition = randomPosition = getRandomEmptyPosition(board);
+        int[] randomPosition = getRandomEmptyPosition(board);
         if (randomPosition != null) {
-            board[randomPosition[0]][randomPosition[1]] = 0;
+            board[randomPosition[0]][randomPosition[1]] = Players.COMPUTER.getSymbol();
             return randomPosition;
         }
-        printBoard(board);
         return null;
     }
 
     public int[] computerMoveSmart() {
         int[] pos;
         if (isFirstMove) {
-            System.out.println("My first move");
             pos = firstMoveWhenXStarts(board);
-            board[pos[0]][pos[1]] = 0;
+            board[pos[0]][pos[1]] = Players.COMPUTER.getSymbol();
             isFirstMove = false;
             return pos;
         }
         pos = smartMove(board);
-        board[pos[0]][pos[1]] = 0;
+        System.out.println(pos[0] + pos[1] + "smart move");
+        board[pos[0]][pos[1]] = Players.COMPUTER.getSymbol();
         System.out.println("Computer representation");
         printBoard(board);
         return pos;
@@ -134,17 +118,24 @@ public class ComputerPlayer {
     }
 
     private int[] smartMove(int[][] board) {
-        int[] move = new int[2];
-        //Computer optimizing his win
+//        to implement a method that player is going for a fork;
+
+
+        //Computer playing on diagonals
         int[] playMainDiag = findWinningPositionDiagonals(board);
         if (playMainDiag[0] >= 0) {
             return playMainDiag;
         }
 
+        /* Computer playing on the rows and columns where he can win */
+        int[] playRowOrColumn = findWinningPositions(board);
+        if (playRowOrColumn != null) {
+            return playRowOrColumn;
+        }
 
 //    block the rows for opponent
         int[] blockRow = checkRows(board, 1);
-        if (blockRow != null) return blockRow;
+        if (blockRow[0] >= 0) return blockRow;
 
 //block the columns for opponent
         int[] blockCol = checkColumns(board, 1);
@@ -152,45 +143,70 @@ public class ComputerPlayer {
             return blockCol;
         }
 
-        return move;
+//        if no block and winning moves left take the empty spot left
+        int[] emptySpot = choseEmptySpot(board);
+        if (emptySpot[0] >= 0) {
+            return emptySpot;
+        }
+
+
+        return null;
     }
 
     private int[] checkRows(int[][] board, int playerValue) {
         int[] move = {-1, -1};
+        int[] mainDiagonal = new int[board.length];
+        int[] secondDiagonal = new int[board.length];
         for (int i = 0; i < board.length; i++) {
             int[] currentRow = board[i];
+
             if (areTwoInRow(currentRow, playerValue)) {
                 int emptyPos = emptyPosition(currentRow);
                 if (emptyPos >= 0) {
                     move[0] = i;
                     move[1] = emptyPos;
-                    System.out.println(move[0] + " " + move[1] + " computer Move");
                     return move;
                 }
             }
-
+            mainDiagonal[i] = board[i][i];
+            secondDiagonal[i] = board[i][board.length - 1 - i];
         }
+        if (areTwoInRow(mainDiagonal, playerValue)) {
+            int emptyPos = emptyPosition(mainDiagonal);
+            if (emptyPos >= 0) {
+                move[0] = emptyPos;
+                move[1] = emptyPos;
+                return move;
+            }
+        }
+        if (areTwoInRow(secondDiagonal, playerValue)) {
+            int emptyPos = emptyPosition(mainDiagonal);
+            if (emptyPos >= 0) {
+                move[0] = emptyPos;
+                move[1] = board.length - 1 - emptyPos;
+                return move;
+            }
+        }
+
         return move;
     }
 
     public int[] checkColumns(int[][] board, int playerValue) {
         int[] moves = {-1, -1};
-        int rows = board.length;
-        int columns = board[0].length;
-        int[] columnValues = new int[rows];
-        for (int i = 0; i < columns; i++) {
-            for (int j = 0; j < rows; j++) {
-                columnValues[j] = board[j][i];
-            }
-            if (areTwoInRow(columnValues, playerValue)) {
-                int emptyPosition = emptyPosition(columnValues);
-                if (emptyPosition >= 0) {
-                    moves[0] = emptyPosition;
-                    moves[1] = i;
-                    return moves;
+        for (int i = 0; i < board.length; i++) {
+            int playerCount = 0;
+            int emptyRow = -1;
+
+            for (int j = 0; j < board[0].length; j++) {
+                if (board[j][i] == playerValue) {
+                    playerCount++;
+                } else if (board[j][i] == EMPTY_VALUE) {
+                    emptyRow = j;
                 }
             }
-
+            if (playerCount == 2 && emptyRow != -1) {
+                return new int[]{emptyRow, i};
+            }
         }
         return moves;
     }
@@ -220,42 +236,59 @@ public class ComputerPlayer {
 
     public void setFirstMove(boolean value) {
         this.isFirstMove = value;
-        System.out.println("First move initialized ");
     }
 
     private int[] findWinningPositionDiagonals(int[][] board) {
         int[] moves = {-1, -1};
-
-        // Check if the center is occupied by the computer
         if (board[1][1] == 0) {
             boolean playerOnMainDiagonal = board[0][0] == Players.PLAYER.getSymbol() || board[2][2] == Players.PLAYER.getSymbol();
             boolean playerOnAntiDiagonal = board[0][2] == Players.PLAYER.getSymbol() || board[2][0] == Players.PLAYER.getSymbol();
-
-            // Upper-left and lower-right corners (main diagonal)
             if (!playerOnMainDiagonal && board[0][0] == EMPTY_VALUE && board[2][2] == EMPTY_VALUE) {
                 return new int[]{0, 0};
-            }
-            // Only the lower-right corner of the main diagonal
-            else if (!playerOnMainDiagonal && board[2][2] == EMPTY_VALUE) {
+            } else if (!playerOnMainDiagonal && board[2][2] == EMPTY_VALUE) {
                 return new int[]{2, 2};
             }
-
-            // Upper-right and lower-left corners (anti-diagonal)
             if (!playerOnAntiDiagonal && board[0][2] == EMPTY_VALUE && board[2][0] == EMPTY_VALUE) {
                 return new int[]{0, 2};
-            }
-            // Only the lower-left corner of the anti-diagonal
-            else if (!playerOnAntiDiagonal && board[2][0] == EMPTY_VALUE) {
+            } else if (!playerOnAntiDiagonal && board[2][0] == EMPTY_VALUE) {
                 return new int[]{2, 0};
             }
         }
-
-        // Return the default move if none of the above conditions are met
         return moves;
     }
 
-    private int[] blockPlayerOnDiagonal(){
-
+    private int[] findWinningPositions(int[][] board) {
+        int[] column = new int[3];
+        for (int i = 0; i < board.length; i++) {
+            if (areTwoInRow(board[i], Players.COMPUTER.getSymbol())) {
+                int emptySpot = emptyPosition(board[i]);
+                if (emptySpot >= 0) {
+                    return new int[]{i, emptySpot};
+                }
+            }
+            for (int j = 0; j < board[0].length; j++) {
+                column[j] = board[j][i];
+            }
+            if (areTwoInRow(column, Players.COMPUTER.getSymbol())) {
+                int emptySpot = emptyPosition(column);
+                if (emptySpot >= 0) {
+                    return new int[]{emptySpot, i};
+                }
+            }
+        }
+        return null;
     }
 
+    private int[] choseEmptySpot(int[][] board) {
+        int[] moves = {-1, -1};
+        for (int i = 0; i < board.length; i++) {
+            int empty = emptyPosition(board[i]);
+            if (empty >= 0) {
+                moves[0] = i;
+                moves[1] = empty;
+                return moves;
+            }
+        }
+        return moves;
+    }
 }
